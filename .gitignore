@@ -1,5 +1,6 @@
 .venv/
-.cache/
+__pycache__/
+cache/
 src/data/*.graphml
 !src/data/Alagoas_Brazil.graphml
 !src/data/Maceió_Alagoas_Brazil.graphml

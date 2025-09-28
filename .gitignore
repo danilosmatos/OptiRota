@@ -1,10 +1,10 @@
 .venv/
 __pycache__/
 
-cache/**
+cache/*
 !cache/.gitkeep
-graph/**
-!graph/.gitkeep
+src/graph/*
+!src/graph/.gitkeep
 
 src/data/*.graphml
 !src/data/Alagoas_Brazil.graphml

@@ -116,7 +116,7 @@ def reconstruir_caminho(pais, destino, inicio):
         return caminho[::-1]
     return None
 
-def a_star_plotagem(grafo_osmnx, weight_type, origem_coord, destino_coord, local_do_grafo):
+def plotagem_a_star(grafo_osmnx, weight_type, origem_coord, destino_coord, local_do_grafo):
     print("\n" + "― "*30)
     print(" "*10 + "GRÁFICO DO ALGORÍTMO A*")
     print("― "*30)

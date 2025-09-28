@@ -1,7 +1,7 @@
 # Importação dp proprio repo
 from algorithms.grafo import grafo_base
-from algorithms.a_star import a_star_plotagem 
-from algorithms.cvrptw import cvrptw_plotagem
+from algorithms.a_star import plotagem_a_star 
+from algorithms.cvrptw import plotagem_cvrptw
 
 #------------------
 # dados fixossssss
@@ -67,7 +67,7 @@ def main():
     
     grafo_alagoas, weight_type = grafo_base(place_name=grafo_alagoas, weight_type=peso_do_grafo)
 
-    a_star_plotagem(
+    plotagem_a_star(
         grafo_alagoas, 
         weight_type, 
         origem_a_star, 
@@ -77,9 +77,9 @@ def main():
     
     local_grafo_maceio = "Maceió, Alagoas, Brazil"
     
-    grafo_maceio, _ = grafo_base(place_name=local_grafo_maceio, weight_type=peso_do_grafo)
+    grafo_maceio, awdasd = grafo_base(place_name=local_grafo_maceio, weight_type=peso_do_grafo)
 
-    cvrptw_plotagem(
+    plotagem_cvrptw(
         grafo_maceio, 
         cvrptw_maceio_parametros, 
         cvrptw_maceio_coordenadas

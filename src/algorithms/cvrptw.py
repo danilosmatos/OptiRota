@@ -132,17 +132,11 @@ class CVRPTWSolver:
             print('Nenhuma solução encontrada.')
 
 def gerar_matriz_tempos(G, pontos_de_interesse):
-    """
-    Calcula a matriz de tempos de viagem entre todos os pontos de interesse
-    usando o algoritmo A*.
-    """
     num_pontos = len(pontos_de_interesse)
     matriz_tempos = [[0] * num_pontos for _ in range(num_pontos)]
     
-    # Busca o nó mais próximo no grafo para cada coordenada de interesse
     nodes_map = [ox.nearest_nodes(G, X=lon, Y=lat) for lat, lon in pontos_de_interesse]
     
-    # Inicializa o grafo A* com o grafo da rede de ruas
     grafo_a_star = Grafo_A_Star_Base(G)
     
     for i in range(num_pontos):
@@ -153,11 +147,9 @@ def gerar_matriz_tempos(G, pontos_de_interesse):
             origem = nodes_map[i]
             destino = nodes_map[j]
             
-            # Executa o A* para encontrar o tempo mínimo de viagem
             g_score, _, _ = a_star_opi(grafo_a_star, origem, destino)
             tempo_viagem = g_score.get(destino, float('inf'))
             
-            # Se o nó for inacessível, usa um valor alto para penalizar
             if tempo_viagem == float('inf'):
                 tempo_viagem = 99999
             
@@ -165,16 +157,12 @@ def gerar_matriz_tempos(G, pontos_de_interesse):
             
     return matriz_tempos
 
-def cvrptw_plotagem(grafo_rede, cvrptw_params, coordenadas_cvrptw):
+def plotagem_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
+    print("="*40)
+    print(" "*10 + "SOLVER CVRPTW")
+    print("="*40)
     
-    # ----------------------------------------------------
-    # 1. Configuração e Solução
-    # ----------------------------------------------------
-    print("\n" + "="*35)
-    print("           SOLVER CVRPTW")
-    print("="*35)
-    
-    # Desempacota os parâmetros
+    # Desempacotamento dos parametros silvio santos
     nomes_clientes = cvrptw_params['nomes_clientes']
     demands = cvrptw_params['demands']
     time_windows = cvrptw_params['time_windows']
@@ -182,15 +170,13 @@ def cvrptw_plotagem(grafo_rede, cvrptw_params, coordenadas_cvrptw):
     num_vehicles = cvrptw_params['num_vehicles']
     depot = cvrptw_params['depot']
     
-    # Gera a matriz de tempos
+    # Gera a matriz de tempos, agr oq é? boa pergunta
     print("\nCalculando a matriz de tempos de viagem com A*...")
     time_matrix = gerar_matriz_tempos(grafo_rede, coordenadas_cvrptw)
     print("Matriz de tempos gerada:")
     for row in time_matrix:
         print(row)
     
-    # Inicia e resolve o modelo
-    print("\nIniciando o solver CVRPTW...")
     solver = CVRPTWSolver(
         nomes_clientes=nomes_clientes,
         time_matrix=time_matrix,
@@ -208,20 +194,15 @@ def cvrptw_plotagem(grafo_rede, cvrptw_params, coordenadas_cvrptw):
         print("Nenhuma solução foi encontrada. Verifique as restrições (capacidades, janelas de tempo).")
         return
 
-    # Salva e imprime a solução
     print("Solução encontrada:")
     solucoes_salvas = solver.save_solution()
     solver.print_saved_solution(solucoes_salvas)
 
-    # ----------------------------------------------------
-    # 2. Lógica Mesclada: Plotagem (antiga 'plotar_rota_cvrptw')
-    # ----------------------------------------------------
     print("\nDesenhando as rotas do CVRPTW em Maceió...")
 
     cores_veiculos = plt.cm.get_cmap('hsv', len(solucoes_salvas))
     
-    # Nós mais próximos dos pontos de interesse
-    # Nota: Assumindo que coordenadas_cvrptw é (lat, lon) e ox.nearest_nodes espera (lon, lat)
+    # Nós mais próximos dos pontos de interesse, inverso do resto do programa por alguma razão satanica
     nodes_map = [ox.nearest_nodes(grafo_rede, X=lon, Y=lat) for lat, lon in coordenadas_cvrptw]
 
     fig, ax = ox.plot_graph(grafo_rede, show=False, close=False, node_size=0, edge_color='gray', bgcolor='w')
@@ -229,7 +210,6 @@ def cvrptw_plotagem(grafo_rede, cvrptw_params, coordenadas_cvrptw):
     for i, solucao_veiculo in enumerate(solucoes_salvas):
         rota_nodes_cliente_id = []
         
-        # Constrói a lista de nós sequenciais, evitando nós repetidos
         for ponto in solucao_veiculo['rota']:
             if not rota_nodes_cliente_id or rota_nodes_cliente_id[-1] != ponto['node_id']:
                  rota_nodes_cliente_id.append(ponto['node_id'])
@@ -240,21 +220,17 @@ def cvrptw_plotagem(grafo_rede, cvrptw_params, coordenadas_cvrptw):
             try:
                 caminho_completo = []
                 
-                # Constrói o caminho completo entre cada par de nós de cliente
                 for j in range(len(nodes_do_caminho_osmnx) - 1):
                     origem = nodes_do_caminho_osmnx[j]
                     destino = nodes_do_caminho_osmnx[j+1]
                     
-                    # Encontra o caminho mais curto na rede de ruas
                     caminho_segmento = ox.shortest_path(grafo_rede, origem, destino, weight='travel_time')
                     
                     if caminho_segmento:
-                        # Adiciona todos os nós do segmento, exceto o último (que será o próximo 'origem')
                         caminho_completo.extend(caminho_segmento[:-1]) 
                 
                 caminho_completo.append(nodes_do_caminho_osmnx[-1]) # Adiciona o nó final (destino do último segmento)
                 
-                # Plota a rota
                 if caminho_completo:
                     ox.plot_graph_route(
                          grafo_rede, caminho_completo, route_color=cores_veiculos(i), route_linewidth=4, route_alpha=0.7, 
@@ -264,14 +240,12 @@ def cvrptw_plotagem(grafo_rede, cvrptw_params, coordenadas_cvrptw):
             except Exception as e:
                 print(f"Não foi possível plotar a rota para o veículo {i+1}: {e}")
 
-    # Adiciona os pontos de interesse (Depósito e Clientes)
     lats = [coord[0] for coord in coordenadas_cvrptw]
     lons = [coord[1] for coord in coordenadas_cvrptw]
     
     ax.scatter(lons[0], lats[0], c='green', s=100, label='Depósito (D)', zorder=6) 
     ax.scatter(lons[1:], lats[1:], c='blue', s=80, label='Clientes', zorder=6) 
     
-    # Adiciona as anotações (D e 1, 2, 3...)
     for idx, (lat, lon) in enumerate(zip(lats, lons)):
         anotacao = f"D" if idx == 0 else f"{idx}"
 

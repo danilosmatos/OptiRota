@@ -1,4 +1,5 @@
 # Importações avulsas
+import os
 import osmnx as ox
 import matplotlib.pyplot as plt
 import time
@@ -73,6 +74,12 @@ def main():
         # Criação dos gráficos
         #----------------------
         
+        nome_arquivo = f"comparacao_desempenho_{local_do_grafo.replace(', ', '_').lower()}.png"
+        
+        DIRETORIO_ATUAL = os.path.dirname(os.path.abspath(__file__)) # Pega o caminho do arquivo atual (src)
+        PASTA_GRAFICOS = os.path.join(DIRETORIO_ATUAL, 'graph')
+        CAMINHO_COMPLETO = os.path.join(PASTA_GRAFICOS, nome_arquivo)
+        
         algoritmos = ['Dijkstra', 'A*']
         tempos_ms = [tempo_total_dijkstra * 1000, tempo_total_astar * 1000]
         nos_explorados = [nos_d, nos_a]
@@ -97,7 +104,10 @@ def main():
         ax2.grid(axis='y', linestyle='--', alpha=0.7)
 
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        
+        plt.savefig(CAMINHO_COMPLETO)
         plt.show()
+        plt.close(fig)
 
     else:
         print("Caminho A* não encontrado. Verifique as coordenadas.")

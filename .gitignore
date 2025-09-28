@@ -1,7 +1,11 @@
 .venv/
 __pycache__/
-cache/
+
+cache/*
 !cache/.gitkeep
+graph/*
+!graph/.gitkeep
+
 src/data/*.graphml
 !src/data/Alagoas_Brazil.graphml
 !src/data/Maceió_Alagoas_Brazil.graphml

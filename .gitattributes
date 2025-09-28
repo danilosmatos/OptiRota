@@ -1,1 +1,4 @@
+# Isso é para mapas muito grandes, tipo países/estados com muitos nós e que requerem mais espaço 
+# do que o git fornece normalmente, utlizando o ngç deles chamado lfs. cuidado que mesmo assim ele 
+# tem limite para o plano gratuito
 *.graphml filter=lfs diff=lfs merge=lfs -text

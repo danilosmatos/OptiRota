@@ -28,12 +28,6 @@ def reconstruir_caminho(pais, destino, inicio):
     return None
 
 def main():
-    """
-    Função principal que executa a comparação de algoritmos e o solver VRP.
-    Todos os inputs estão centralizados aqui.
-    """
-    # Possibilita importar usando .algorithm, pq caso contrário da erro
-    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
     # Construção do grafo, é sensível à acentuação e precisa ser capitalizado. OBS: aracaju é em sergipe
     # peso_do_grafo pode ser travel_time e lenght, mas se usar distância provavelmente vai dar erro no cvrptw
@@ -70,13 +64,14 @@ def main():
     }
     
     # Execução do setup para fazer o A* e o gráfico correspondente,
-    print("\n" + "― "*30 + "\n")
-    print(" "*20 + "EXECUÇÃO E GRÁFICO A*")
-    print("― "*30 + "\n")
+    print("\n" + "― "*20)
+    print(" "*15 + "EXECUÇÃO E GRÁFICO A*")
+    print("― "*20 + "\n")
     print(f"Local do Grafo: {local_do_grafo}")
     print(f"Origem A* (Ponta a Ponta): {origem_a_star}")
     print(f"Destino A* (Ponta a Ponta): {destino_a_star}")
 
+    # Usa do grafo.py para retornar o grafo
     grafo, weight_type = grafo_base(place_name=local_do_grafo, weight_type=peso_do_grafo)
     if not grafo:
         print("Erro: Grafo não pôde ser carregado.")

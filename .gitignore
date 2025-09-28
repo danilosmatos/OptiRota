@@ -1,9 +1,9 @@
 .venv/
 __pycache__/
 
-cache/*
+cache/**
 !cache/.gitkeep
-graph/*
+graph/**
 !graph/.gitkeep
 
 src/data/*.graphml

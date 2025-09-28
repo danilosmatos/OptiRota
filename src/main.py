@@ -1,16 +1,12 @@
 # Importações avulsas
-
 import osmnx as ox
 import matplotlib.pyplot as plt
 import time
-import sys
-import os
-
 # Importações do próprio projeto, todos tem que vir do algorithms
 from algorithms.grafo import grafo_base, grafo_mapear
 from algorithms.dijkstra import Grafo_Dij_Base, dij_Opi 
 from algorithms.a_star import Grafo_A_Star_Base, a_star_opi
-from algorithms.cvrptw import CVRPTWSolver, executar_cvrptw
+from algorithms.cvrptw import executar_cvrptw
 
 # Dijkstra e A* armazenam só o nó pai, ao invés de armazenar uma lista inteira de nós do caminho inteiro 
 # que fizeram, assim economiza memória e deixa facil de atualizar (substituir o pai) e n precisa iterar 
@@ -64,12 +60,12 @@ def main():
     }
     
     # Execução do setup para fazer o A* e o gráfico correspondente,
-    print("\n" + "― "*20)
-    print(" "*15 + "EXECUÇÃO E GRÁFICO A*")
-    print("― "*20 + "\n")
+    print("\n" + "― "*32)
+    print(" "*20 + "EXECUÇÃO E GRÁFICO A*")
+    print("― "*32 + "\n")
     print(f"Local do Grafo: {local_do_grafo}")
-    print(f"Origem A* (Ponta a Ponta): {origem_a_star}")
-    print(f"Destino A* (Ponta a Ponta): {destino_a_star}")
+    print(f"Origem: {origem_a_star}")
+    print(f"Destino: {destino_a_star}")
 
     # Usa do grafo.py para retornar o grafo
     grafo, weight_type = grafo_base(place_name=local_do_grafo, weight_type=peso_do_grafo)
@@ -86,7 +82,7 @@ def main():
     # Execução do A*
     G_astar = Grafo_A_Star_Base(grafo, weight_type=weight_type)
 
-    print("\nExecutando A*...")
+    print("\nExecutando A*")
     tempo_inicio_astar = time.time()
     distancias_a, pais_a, nos_a = a_star_opi(G_astar, origem_node, destino_node)
     tempo_fim_astar = time.time()
@@ -94,7 +90,7 @@ def main():
     path_a_star = reconstruir_caminho(pais_a, destino_node, origem_node)
     tempo_total_astar = tempo_fim_astar - tempo_inicio_astar
 
-    print("Executando Dijkstra (Apenas para métricas de comparação)...")
+    print("Executando Dijkstra")
     tempo_inicio_dijkstra = time.time()
     G_dijkstra = Grafo_Dij_Base(grafo, weight_type=weight_type) 
     distancias_d, pais_d, nos_d = dij_Opi(G_dijkstra, origem_node)
@@ -118,8 +114,8 @@ def main():
         print("\nDesenhando a rota A* de ponta a ponta do estado...")
         fig, ax = ox.plot_graph_route(
             grafo, path_a_star, route_color='r', route_linewidth=3, route_alpha=1.0, 
-            node_size=0, bgcolor='w', 
-            show=False, close=False # Mude para False para que o Matplotlib possa finalizar
+            node_size=1, bgcolor='w', 
+            show=False, close=False
         )
         
         plt.title(f"Rota A* em {local_do_grafo}")

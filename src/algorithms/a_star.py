@@ -116,7 +116,7 @@ def reconstruir_caminho(pais, destino, inicio):
         return caminho[::-1]
     return None
 
-def executar_e_plotar_a_star(grafo_osmnx, weight_type, origem_coord, destino_coord, local_do_grafo):
+def a_star_plotagem(grafo_osmnx, weight_type, origem_coord, destino_coord, local_do_grafo):
     print("\n" + "― "*30)
     print(" "*10 + "GRÁFICO DO ALGORÍTMO A*")
     print("― "*30)
@@ -164,7 +164,7 @@ def executar_e_plotar_a_star(grafo_osmnx, weight_type, origem_coord, destino_coo
         ax.scatter(origem_coord_g[1], origem_coord_g[0], c='green', s=150, label='Origem', zorder=6)
         ax.scatter(destino_coord_g[1], destino_coord_g[0], c='blue', s=150, label='Destino', zorder=6)
 
-        plt.title(f"Rota A* em {local_do_grafo}")
+        plt.title(f"Rota A*")
         plt.legend()
         plt.show()
         

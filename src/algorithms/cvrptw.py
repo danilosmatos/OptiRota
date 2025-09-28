@@ -165,11 +165,16 @@ def gerar_matriz_tempos(G, pontos_de_interesse):
             
     return matriz_tempos
 
-def executar_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
+def cvrptw_plotagem(grafo_rede, cvrptw_params, coordenadas_cvrptw):
+    
+    # ----------------------------------------------------
+    # 1. Configuração e Solução
+    # ----------------------------------------------------
     print("\n" + "="*35)
-    print("      SOLVER CVRPTW")
+    print("           SOLVER CVRPTW")
     print("="*35)
     
+    # Desempacota os parâmetros
     nomes_clientes = cvrptw_params['nomes_clientes']
     demands = cvrptw_params['demands']
     time_windows = cvrptw_params['time_windows']
@@ -177,13 +182,14 @@ def executar_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
     num_vehicles = cvrptw_params['num_vehicles']
     depot = cvrptw_params['depot']
     
+    # Gera a matriz de tempos
     print("\nCalculando a matriz de tempos de viagem com A*...")
-    # Gera a matriz de tempos entre os pontos de interesse
     time_matrix = gerar_matriz_tempos(grafo_rede, coordenadas_cvrptw)
     print("Matriz de tempos gerada:")
     for row in time_matrix:
         print(row)
     
+    # Inicia e resolve o modelo
     print("\nIniciando o solver CVRPTW...")
     solver = CVRPTWSolver(
         nomes_clientes=nomes_clientes,
@@ -198,31 +204,32 @@ def executar_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
     solver.setup_model()
     solution = solver.solve()
     
-    solucoes_salvas = []
-    if solution:
-        print("Solução encontrada:")
-        solucoes_salvas = solver.save_solution()
-        solver.print_saved_solution(solucoes_salvas)
-        
-        # Chama a função de plotagem
-        plotar_rota_cvrptw(grafo_rede, solucoes_salvas, coordenadas_cvrptw)
-    else:
+    if not solution:
         print("Nenhuma solução foi encontrada. Verifique as restrições (capacidades, janelas de tempo).")
+        return
 
-def plotar_rota_cvrptw(G, solucoes_salvas, coordenadas_cvrptw):
+    # Salva e imprime a solução
+    print("Solução encontrada:")
+    solucoes_salvas = solver.save_solution()
+    solver.print_saved_solution(solucoes_salvas)
 
+    # ----------------------------------------------------
+    # 2. Lógica Mesclada: Plotagem (antiga 'plotar_rota_cvrptw')
+    # ----------------------------------------------------
     print("\nDesenhando as rotas do CVRPTW em Maceió...")
 
     cores_veiculos = plt.cm.get_cmap('hsv', len(solucoes_salvas))
     
     # Nós mais próximos dos pontos de interesse
-    nodes_map = [ox.nearest_nodes(G, X=lon, Y=lat) for lat, lon in coordenadas_cvrptw]
+    # Nota: Assumindo que coordenadas_cvrptw é (lat, lon) e ox.nearest_nodes espera (lon, lat)
+    nodes_map = [ox.nearest_nodes(grafo_rede, X=lon, Y=lat) for lat, lon in coordenadas_cvrptw]
 
-    fig, ax = ox.plot_graph(G, show=False, close=False, node_size=0, edge_color='gray', bgcolor='w')
+    fig, ax = ox.plot_graph(grafo_rede, show=False, close=False, node_size=0, edge_color='gray', bgcolor='w')
 
     for i, solucao_veiculo in enumerate(solucoes_salvas):
         rota_nodes_cliente_id = []
         
+        # Constrói a lista de nós sequenciais, evitando nós repetidos
         for ponto in solucao_veiculo['rota']:
             if not rota_nodes_cliente_id or rota_nodes_cliente_id[-1] != ponto['node_id']:
                  rota_nodes_cliente_id.append(ponto['node_id'])
@@ -233,34 +240,39 @@ def plotar_rota_cvrptw(G, solucoes_salvas, coordenadas_cvrptw):
             try:
                 caminho_completo = []
                 
+                # Constrói o caminho completo entre cada par de nós de cliente
                 for j in range(len(nodes_do_caminho_osmnx) - 1):
                     origem = nodes_do_caminho_osmnx[j]
                     destino = nodes_do_caminho_osmnx[j+1]
                     
-                    caminho_segmento = ox.shortest_path(G, origem, destino, weight='travel_time')
+                    # Encontra o caminho mais curto na rede de ruas
+                    caminho_segmento = ox.shortest_path(grafo_rede, origem, destino, weight='travel_time')
                     
                     if caminho_segmento:
+                        # Adiciona todos os nós do segmento, exceto o último (que será o próximo 'origem')
                         caminho_completo.extend(caminho_segmento[:-1]) 
                 
-                caminho_completo.append(nodes_do_caminho_osmnx[-1]) # Adiciona o nó final
+                caminho_completo.append(nodes_do_caminho_osmnx[-1]) # Adiciona o nó final (destino do último segmento)
                 
+                # Plota a rota
                 if caminho_completo:
                     ox.plot_graph_route(
-                         G, caminho_completo, route_color=cores_veiculos(i), route_linewidth=4, route_alpha=0.7, 
+                         grafo_rede, caminho_completo, route_color=cores_veiculos(i), route_linewidth=4, route_alpha=0.7, 
                          ax=ax, route_zorder=5, show=False, close=False, node_size=0
                     )
                 
             except Exception as e:
                 print(f"Não foi possível plotar a rota para o veículo {i+1}: {e}")
 
+    # Adiciona os pontos de interesse (Depósito e Clientes)
     lats = [coord[0] for coord in coordenadas_cvrptw]
     lons = [coord[1] for coord in coordenadas_cvrptw]
     
     ax.scatter(lons[0], lats[0], c='green', s=100, label='Depósito (D)', zorder=6) 
     ax.scatter(lons[1:], lats[1:], c='blue', s=80, label='Clientes', zorder=6) 
     
+    # Adiciona as anotações (D e 1, 2, 3...)
     for idx, (lat, lon) in enumerate(zip(lats, lons)):
-        
         anotacao = f"D" if idx == 0 else f"{idx}"
 
         ax.annotate(
@@ -270,6 +282,6 @@ def plotar_rota_cvrptw(G, solucoes_salvas, coordenadas_cvrptw):
             zorder=7
         )
 
-    plt.title('Rotas CVRPTW em Maceió com Enumeração')
+    plt.title('Rotas CVRPTW')
     plt.legend()
     plt.show()

@@ -1,12 +1,12 @@
 # Importação dp proprio repo
 from algorithms.grafo import grafo_base
-from algorithms.a_star import executar_e_plotar_a_star 
-from algorithms.cvrptw import executar_cvrptw
+from algorithms.a_star import a_star_plotagem 
+from algorithms.cvrptw import cvrptw_plotagem
 
 #------------------
 # dados fixossssss
 #------------------
-astar_alagoas_coordenadas = {
+a_star_alagoas_coordenadas = {
     'Maragogi (Norte)': (-8.7504, -35.2289), 
     'Penedo (Sul)': (-10.3015, -36.1416),
     'Arapiraca (Oeste)': (-9.7344, -36.6577),
@@ -14,10 +14,10 @@ astar_alagoas_coordenadas = {
 }
 
 cvrptw_maceio_coordenadas = [
-    (-9.6653, -35.7337), # Ponto 0: Depósito (Praça Sete Coqueiros)
-    (-9.6645, -35.7380), # Ponto 1: Cliente 1 (Praia de Pajuçara)
-    (-9.6580, -35.7190), # Ponto 2: Cliente 2 (Jatiúca)
-    (-9.6450, -35.7050), # Ponto 3: Cliente 3 (Maceió Shopping)
+    (-9.6653, -35.7337), # Depósito (Praça Sete Coqueiros)
+    (-9.6645, -35.7380), # Cliente 1 (Praia de Pajuçara)
+    (-9.6580, -35.7190), # Cliente 2 (Jatiúca)
+    (-9.6450, -35.7050), # Cliente 3 (Maceió Shopping)
 ]
 
 cvrptw_maceio_parametros = {
@@ -31,22 +31,25 @@ cvrptw_maceio_parametros = {
     'depot': 0
 }
 
-def selecionar_local_por_menu(predefinidos, nome_ponto):
+def menu(predefinidos, nome_ponto):
     opcoes = list(predefinidos.keys())
-    
+    op = len(opcoes)
     print(f"\n--- Selecione o {nome_ponto} ---")
     for i, nome in enumerate(opcoes):
         print(f"[{i + 1}] {nome}")
     
     while True:
+        
         try:
             num = int(input(f"Digite o número para o {nome_ponto}: ")) - 1
-            if 0 <= num < len(opcoes):
+            if 0 <= num < op:
                 num_escolhido = opcoes[num]
                 print(f"-> Selecionado: {num_escolhido}\n")
                 return predefinidos[num_escolhido]
+        
             else:
                 print("Opção inválida. Tente novamente.")
+        
         except ValueError:
             print("Entrada inválida. Digite apenas o número.")
 
@@ -59,12 +62,12 @@ def main():
     grafo_alagoas = "Alagoas, Brazil"
     peso_do_grafo = 'travel_time' 
     
-    origem_a_star = selecionar_local_por_menu(astar_alagoas_coordenadas, "Ponto de Origem (A*)")
-    destino_a_star = selecionar_local_por_menu(astar_alagoas_coordenadas, "Ponto de Destino (A*)")
+    origem_a_star = menu(a_star_alagoas_coordenadas, "Origem (A*)")
+    destino_a_star = menu(a_star_alagoas_coordenadas, "Destino (A*)")
     
     grafo_alagoas, weight_type = grafo_base(place_name=grafo_alagoas, weight_type=peso_do_grafo)
 
-    executar_e_plotar_a_star(
+    a_star_plotagem(
         grafo_alagoas, 
         weight_type, 
         origem_a_star, 
@@ -76,13 +79,11 @@ def main():
     
     grafo_maceio, _ = grafo_base(place_name=local_grafo_maceio, weight_type=peso_do_grafo)
 
-    executar_cvrptw(
+    cvrptw_plotagem(
         grafo_maceio, 
         cvrptw_maceio_parametros, 
         cvrptw_maceio_coordenadas
     )
-    
-    print("\nProcesso concluído.")
 
 if __name__ == '__main__':
     main()

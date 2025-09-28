@@ -74,38 +74,28 @@ def main():
         #----------------------
         
         algoritmos = ['Dijkstra', 'A*']
-        
-        # Dados de Tempo (em milissegundos)
         tempos_ms = [tempo_total_dijkstra * 1000, tempo_total_astar * 1000]
-        
-        # Dados de Nós Explorados
         nos_explorados = [nos_d, nos_a]
         
-        # Configura a figura e os subplots
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
         fig.suptitle(f'Comparação de Desempenho entre Algoritmos em {local_do_grafo}', fontsize=16)
 
-        # --- Gráfico 1: Tempo de Execução ---
         ax1.bar(algoritmos, tempos_ms, color=['darkorange', 'dodgerblue'])
         ax1.set_title('Tempo de Execução')
         ax1.set_ylabel('Tempo (milissegundos)')
         ax1.set_xlabel('Algoritmo')
-        # Adiciona os valores nas barras
         for i, v in enumerate(tempos_ms):
             ax1.text(i, v + max(tempos_ms)*0.05, f'{v:.2f}', ha='center', color='black', fontweight='bold')
         ax1.grid(axis='y', linestyle='--', alpha=0.7)
 
-        # --- Gráfico 2: Nós Explorados ---
         ax2.bar(algoritmos, nos_explorados, color=['darkorange', 'dodgerblue'])
         ax2.set_title('Nós do Grafo Explorados')
         ax2.set_ylabel('Quantidade de Nós')
         ax2.set_xlabel('Algoritmo')
-        # Adiciona os valores nas barras
         for i, v in enumerate(nos_explorados):
             ax2.text(i, v + max(nos_explorados)*0.05, f'{v}', ha='center', color='black', fontweight='bold')
         ax2.grid(axis='y', linestyle='--', alpha=0.7)
 
-        # Ajusta layout e mostra os gráficos
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.show()
 

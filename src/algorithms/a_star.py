@@ -117,19 +117,8 @@ def reconstruir_caminho(pais, destino, inicio):
     return None
 
 def executar_e_plotar_a_star(grafo_osmnx, weight_type, origem_coord, destino_coord, local_do_grafo):
-    """
-    Orquestra o mapeamento, execução, cronometragem e plotagem do A*.
-    Esta função combina a lógica de cálculo e visualização.
-    
-    Args:
-        grafo_osmnx (networkx.MultiDiGraph): O grafo da rede de ruas.
-        weight_type (str): O peso a ser usado ('travel_time' ou 'length').
-        origem_coord (tuple): (lat, lon) da origem.
-        destino_coord (tuple): (lat, lon) do destino.
-        local_do_grafo (str): Nome do local para o título do gráfico.
-    """
     print("\n" + "― "*30)
-    print(" "*10 + "EXECUÇÃO E PLOTAGEM DO A*")
+    print(" "*10 + "GRÁFICO DO ALGORÍTMO A*")
     print("― "*30)
     print(f"Origem: {origem_coord}")
     print(f"Destino: {destino_coord}")
@@ -154,9 +143,7 @@ def executar_e_plotar_a_star(grafo_osmnx, weight_type, origem_coord, destino_coo
     if not path_a_star:
         print("Caminho A* não encontrado.")
         return False
-        
-    print(f"Desenhando a rota A* em {local_do_grafo}...")
-    
+            
     # Chama a função de plotagem do OSMnx
     try:
         fig, ax = ox.plot_graph_route(

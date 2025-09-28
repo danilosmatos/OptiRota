@@ -15,8 +15,11 @@ def main():
     local_do_grafo = "Alagoas, Brazil"
     peso_do_grafo = 'travel_time' 
     
-    #Maragogi: -8.7504, -35.2289
-    #Penedo: -10.3015, -36.1416
+    #'Maragogi (Norte)': (-8.7504, -35.2289)
+    #'Penedo (Sul)': (-10.3015, -36.1416)
+    #'Arapiraca (Oeste)': (-9.7344, -36.6577)
+    #'Maceió (Capital)': (-9.6653, -35.7337)
+
     origem_a_star = (-8.7504, -35.2289) 
     destino_a_star = (-10.3015, -36.1416)
     

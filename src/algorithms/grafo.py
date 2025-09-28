@@ -54,7 +54,6 @@ def grafo_base(
     print(f"Grafo baixado e processado. Salvando em {filepath}...")
     ox.save_graphml(G, filepath=filepath)
     
-    print(f"Grafo carregado e preparado. Peso primário: '{weight_type}'.")
     return G, weight_type
 
 def grafo_mapear(G, coords_origem, coords_destino):

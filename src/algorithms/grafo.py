@@ -1,5 +1,3 @@
-# grafo.py
-
 import osmnx as ox
 import networkx as nx
 import os

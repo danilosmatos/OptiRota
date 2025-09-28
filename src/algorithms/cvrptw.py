@@ -2,8 +2,15 @@
 
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
+import osmnx as ox
+import matplotlib.pyplot as plt
+
+# A* e Grafo devem ser importados para gerar a matriz de tempos
+# Assumindo que a_star.py e grafo.py estão acessíveis
+from .a_star import Grafo_A_Star_Base, a_star_opi 
 
 class CVRPTWSolver:
+    # ... (O restante da classe CVRPTWSolver permanece inalterado) ...
     def __init__(self, nomes_clientes, time_matrix, time_windows, demands, vehicle_capacities, num_vehicles, depot=0):
         self.data = {
             'nomes_clientes': nomes_clientes,
@@ -125,3 +132,185 @@ class CVRPTWSolver:
                 print("-" * 30)
         else:
             print('Nenhuma solução encontrada.')
+
+def gerar_matriz_tempos(G, pontos_de_interesse):
+    """
+    Calcula a matriz de tempos de viagem entre todos os pontos de interesse
+    usando o algoritmo A*.
+    """
+    num_pontos = len(pontos_de_interesse)
+    matriz_tempos = [[0] * num_pontos for _ in range(num_pontos)]
+    
+    # Busca o nó mais próximo no grafo para cada coordenada de interesse
+    nodes_map = [ox.nearest_nodes(G, X=lon, Y=lat) for lat, lon in pontos_de_interesse]
+    
+    # Inicializa o grafo A* com o grafo da rede de ruas
+    grafo_a_star = Grafo_A_Star_Base(G)
+    
+    for i in range(num_pontos):
+        for j in range(num_pontos):
+            if i == j:
+                continue
+                
+            origem = nodes_map[i]
+            destino = nodes_map[j]
+            
+            # Executa o A* para encontrar o tempo mínimo de viagem
+            g_score, _, _ = a_star_opi(grafo_a_star, origem, destino)
+            tempo_viagem = g_score.get(destino, float('inf'))
+            
+            # Se o nó for inacessível, usa um valor alto para penalizar
+            if tempo_viagem == float('inf'):
+                tempo_viagem = 99999
+            
+            matriz_tempos[i][j] = int(tempo_viagem)
+            
+    return matriz_tempos
+
+def executar_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
+    """
+    Função para resolver o problema CVRPTW e plotar a solução.
+    """
+    print("\n" + "="*35)
+    print("      SOLVER CVRPTW")
+    print("="*35)
+    
+    nomes_clientes = cvrptw_params['nomes_clientes']
+    demands = cvrptw_params['demands']
+    time_windows = cvrptw_params['time_windows']
+    vehicle_capacities = cvrptw_params['vehicle_capacities']
+    num_vehicles = cvrptw_params['num_vehicles']
+    depot = cvrptw_params['depot']
+    
+    print("\nCalculando a matriz de tempos de viagem com A*...")
+    # Gera a matriz de tempos entre os pontos de interesse
+    time_matrix = gerar_matriz_tempos(grafo_rede, coordenadas_cvrptw)
+    print("Matriz de tempos gerada:")
+    for row in time_matrix:
+        print(row)
+    
+    print("\nIniciando o solver CVRPTW...")
+    solver = CVRPTWSolver(
+        nomes_clientes=nomes_clientes,
+        time_matrix=time_matrix,
+        time_windows=time_windows,
+        demands=demands,
+        vehicle_capacities=vehicle_capacities,
+        num_vehicles=num_vehicles,
+        depot=depot
+    )
+    
+    solver.setup_model()
+    solution = solver.solve()
+    
+    solucoes_salvas = []
+    if solution:
+        print("Solução encontrada:")
+        solucoes_salvas = solver.save_solution()
+        solver.print_saved_solution(solucoes_salvas)
+        
+        # Chama a função de plotagem
+        plotar_rota_cvrptw(grafo_rede, solucoes_salvas, coordenadas_cvrptw)
+    else:
+        print("Nenhuma solução foi encontrada. Verifique as restrições (capacidades, janelas de tempo).")
+
+# cvrptw.py (APENAS A FUNÇÃO plotar_rota_cvrptw FOI MODIFICADA)
+
+def plotar_rota_cvrptw(G, solucoes_salvas, coordenadas_cvrptw):
+    """
+    Plota as rotas do CVRPTW usando matplotlib e ox.plot, com enumeração dos pontos.
+    """
+    if not solucoes_salvas:
+        print("Não há solução para plotar.")
+        return
+
+    print("\nDesenhando as rotas do CVRPTW em Maceió...")
+    
+    # Cores para cada veículo
+    # Garante que cores_veiculos seja um objeto de mapa de cores
+    cores_veiculos = plt.cm.get_cmap('hsv', len(solucoes_salvas))
+    
+    # Nós do grafo mais próximos dos pontos de interesse
+    nodes_map = [ox.nearest_nodes(G, X=lon, Y=lat) for lat, lon in coordenadas_cvrptw]
+
+    # 1. Desenha o grafo base
+    fig, ax = ox.plot_graph(G, show=False, close=False, node_size=0, edge_color='gray', bgcolor='w')
+
+    for i, solucao_veiculo in enumerate(solucoes_salvas):
+        # rota_nodes armazena os IDs dos clientes na sequência da rota
+        rota_nodes_cliente_id = []
+        
+        # Converte a rota de IDs de cliente para a sequência
+        for ponto in solucao_veiculo['rota']:
+            # Adiciona apenas se for um nó novo na sequência (ignora repetição do depósito)
+            if not rota_nodes_cliente_id or rota_nodes_cliente_id[-1] != ponto['node_id']:
+                 rota_nodes_cliente_id.append(ponto['node_id'])
+        
+        # Mapeia os IDs dos clientes (0, 1, 2, ...) para IDs dos nós do OSMnx
+        nodes_do_caminho_osmnx = [nodes_map[idx] for idx in rota_nodes_cliente_id]
+
+        # Se a rota tiver pelo menos dois nós (Depósito -> Cliente ou Depósito -> Depósito)
+        if len(nodes_do_caminho_osmnx) > 1:
+            try:
+                # Lista final de todos os nós do OSMnx que compõem o caminho contínuo
+                caminho_completo = []
+                
+                # Para cada segmento de rota (de nó A para nó B)
+                for j in range(len(nodes_do_caminho_osmnx) - 1):
+                    origem = nodes_do_caminho_osmnx[j]
+                    destino = nodes_do_caminho_osmnx[j+1]
+                    
+                    # Usa ox.shortest_path para obter a lista de nós entre A e B
+                    caminho_segmento = ox.shortest_path(G, origem, destino, weight='travel_time')
+                    
+                    if caminho_segmento:
+                        # Estende o caminho completo. Evita duplicar o nó de destino (origem do próximo segmento)
+                        caminho_completo.extend(caminho_segmento[:-1]) 
+                
+                caminho_completo.append(nodes_do_caminho_osmnx[-1]) # Adiciona o nó final
+                
+                # Plotagem do caminho completo sobre o eixo 'ax'
+                if caminho_completo:
+                    # CORREÇÃO: Usamos ox.plot_graph_route com o eixo 'ax'
+                    ox.plot_graph_route(
+                         G, caminho_completo, route_color=cores_veiculos(i), route_linewidth=4, route_alpha=0.7, 
+                         ax=ax, route_zorder=5, show=False, close=False, node_size=0
+                    )
+                
+            except Exception as e:
+                # Imprime o erro de rota para debug
+                print(f"Não foi possível plotar a rota para o veículo {i+1}: {e}")
+
+    # 2. Plota os pontos de interesse (Depósito e Clientes)
+    lats = [coord[0] for coord in coordenadas_cvrptw]
+    lons = [coord[1] for coord in coordenadas_cvrptw]
+    
+    # Plota o depósito
+    ax.scatter(lons[0], lats[0], c='green', s=100, label='Depósito (D)', zorder=6) 
+    # Plota os clientes
+    ax.scatter(lons[1:], lats[1:], c='blue', s=80, label='Clientes', zorder=6) 
+    
+    # 3. ENUMERAÇÃO DOS PONTOS (CORRIGIDO)
+    # Itera sobre o índice (que é o ID do cliente) e as coordenadas
+    for idx, (lat, lon) in enumerate(zip(lats, lons)):
+        
+        # Define o rótulo: D para Depósito, e o índice para os Clientes
+        anotacao = f"D" if idx == 0 else f"{idx}"
+
+        # Adiciona a anotação ao gráfico para mostrar a ordem ou identificação
+        ax.annotate(
+            anotacao, 
+            (lon, lat), 
+            xytext=(10, 10), # Offset para o texto não ficar exatamente no centro
+            textcoords="offset points", 
+            color='black', 
+            fontsize=12, 
+            fontweight='bold', 
+            # Caixa de fundo para visibilidade, especialmente em mapas complexos
+            bbox=dict(facecolor='yellow', alpha=0.6, edgecolor='none', pad=2), 
+            zorder=7
+        )
+
+    plt.title('Rotas CVRPTW em Maceió com Enumeração')
+    plt.legend()
+    plt.show()

@@ -11,6 +11,7 @@ A funcionalidade central do sistema de otimização de rotas foi entregue. Estes
 - [x] Integração do A* para Matriz de Tempo: Seu algoritmo A* é usado internamente para calcular a matriz de tempo de viagem exata (custo de rota) entre todos os clientes e o depósito. Isso garante que o motor de roteamento VRP utilize dados de custo de rota altamente precisos e realistas.
 
 Time
+    .
     Product Owner (PO): Natalie
 
     Project Manager (PM): Danilo

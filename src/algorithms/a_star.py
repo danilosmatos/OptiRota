@@ -131,7 +131,7 @@ def plotagem_a_star(grafo_osmnx, weight_type, origem_coord, destino_coord, local
 
     G_astar = Grafo_A_Star_Base(grafo_osmnx, weight_type=weight_type)
 
-    _, pais_a, _ = a_star_opi(G_astar, origem_node, destino_node)
+    x, pais_a, x = a_star_opi(G_astar, origem_node, destino_node)
     
     path_a_star = reconstruir_caminho(pais_a, destino_node, origem_node)
     

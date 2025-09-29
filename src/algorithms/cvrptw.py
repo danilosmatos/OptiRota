@@ -2,13 +2,9 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 import osmnx as ox
 import matplotlib.pyplot as plt
-
-# A* e Grafo devem ser importados para gerar a matriz de tempos
-# Assumindo que a_star.py e grafo.py estão acessíveis
 from .a_star import Grafo_A_Star_Base, a_star_opi 
 
 class CVRPTWSolver:
-    # ... (O restante da classe CVRPTWSolver permanece inalterado) ...
     def __init__(self, nomes_clientes, time_matrix, time_windows, demands, vehicle_capacities, num_vehicles, depot=0):
         self.data = {
             'nomes_clientes': nomes_clientes,
@@ -48,7 +44,7 @@ class CVRPTWSolver:
         demand_callback_index = self.routing.RegisterUnaryTransitCallback(demand_callback)
         self.routing.AddDimensionWithVehicleCapacity(
             demand_callback_index,
-            0, # sem folga para a capacidade
+            0,
             self.data['vehicle_capacities'],
             True, # começa do zero
             'Capacity',
@@ -131,11 +127,14 @@ class CVRPTWSolver:
         else:
             print('Nenhuma solução encontrada.')
 
-def gerar_matriz_tempos(G, pontos_de_interesse):
-    num_pontos = len(pontos_de_interesse)
+def matriz_tempo(G, poi):
+    # Para usar cvrptw precisa de uma matriz com o tempo entre os pontos, essa função cobre isso
+    # ela faz A* para calcular a distância entre cada um dos clientes e o deposito
+    
+    num_pontos = len(poi)
     matriz_tempos = [[0] * num_pontos for _ in range(num_pontos)]
     
-    nodes_map = [ox.nearest_nodes(G, X=lon, Y=lat) for lat, lon in pontos_de_interesse]
+    nodes_map = [ox.nearest_nodes(G, X=lon, Y=lat) for lat, lon in poi]
     
     grafo_a_star = Grafo_A_Star_Base(G)
     
@@ -147,7 +146,7 @@ def gerar_matriz_tempos(G, pontos_de_interesse):
             origem = nodes_map[i]
             destino = nodes_map[j]
             
-            g_score, _, _ = a_star_opi(grafo_a_star, origem, destino)
+            g_score, x, x = a_star_opi(grafo_a_star, origem, destino)
             tempo_viagem = g_score.get(destino, float('inf'))
             
             if tempo_viagem == float('inf'):
@@ -170,9 +169,8 @@ def plotagem_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
     num_vehicles = cvrptw_params['num_vehicles']
     depot = cvrptw_params['depot']
     
-    # Gera a matriz de tempos, agr oq é? boa pergunta
     print("\nCalculando a matriz de tempos de viagem com A*...")
-    time_matrix = gerar_matriz_tempos(grafo_rede, coordenadas_cvrptw)
+    time_matrix = matriz_tempo(grafo_rede, coordenadas_cvrptw)
     print("Matriz de tempos gerada:")
     for row in time_matrix:
         print(row)

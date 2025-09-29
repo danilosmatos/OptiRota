@@ -123,14 +123,12 @@ def plotagem_a_star(grafo_osmnx, weight_type, origem_coord, destino_coord, local
     print(f"Origem: {origem_coord}")
     print(f"Destino: {destino_coord}")
 
-    # 1. Mapeamento de Coordenadas para Nós
     origem_node, destino_node = grafo_mapear(grafo_osmnx, origem_coord, destino_coord)
 
     if origem_node is None or destino_node is None:
         print("Erro: Nós de origem ou destino não encontrados no grafo. Tente coordenadas mais próximas de uma via.")
         return False
 
-    # 2. Setup e Execução do Algoritmo A*
     G_astar = Grafo_A_Star_Base(grafo_osmnx, weight_type=weight_type)
 
     _, pais_a, _ = a_star_opi(G_astar, origem_node, destino_node)
@@ -139,22 +137,14 @@ def plotagem_a_star(grafo_osmnx, weight_type, origem_coord, destino_coord, local
     
     print(f"\nCaminho A* encontrado")
 
-    # 3. Plotagem (Lógica movida para cá)
     if not path_a_star:
         print("Caminho A* não encontrado.")
         return False
             
-    # Chama a função de plotagem do OSMnx
     try:
         fig, ax = ox.plot_graph_route(
-            grafo_osmnx, path_a_star, 
-            route_color='r', 
-            route_linewidth=4, 
-            route_alpha=0.8, 
-            node_size=1, 
-            bgcolor='w', 
-            show=False, 
-            close=False
+            grafo_osmnx, path_a_star, route_color='r', route_linewidth=4, route_alpha=0.8, 
+            node_size=1, bgcolor='w', show=False, close=False
         )
         
         # Destaca os nós de origem e destino

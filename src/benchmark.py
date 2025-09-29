@@ -41,7 +41,9 @@ def main():
         print("Erro: Nós de origem ou destino não encontrados no grafo.")
         return
     
+    #----------------
     # Execução do A*
+    #----------------
     
     print("\nExecutando A*")
     G_astar = Grafo_A_Star_Base(grafo, weight_type=weight_type)

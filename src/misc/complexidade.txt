@@ -1,0 +1,12 @@
+Dijkstra O((V+E)log V) (Polinomial quase sempre)
+    Melhor: O mesmo dos outros
+    Médio: O mesmo dos outros
+    Pior: O mesmo dos outros
+
+Explora o grafo extensivamente de uma forma ou de outra, mesmo tendo "encontrado" o melhor caso ele
+continua explorando para ter certeza
+
+A* (Única garantia é que é melhor que a Dijkstra a não ser no pior caso)
+    Melhor: Se a heuristica for perfeita, ele faz um caminho reto para o destino, disperdiçando nada
+    Médio: Se a heuristica for admissivel e consistente, muito melhor que dijkstra
+    Pior: Se a heuristica não fizer nada (não admissivel), ele se torna o mesmo do dijkstra

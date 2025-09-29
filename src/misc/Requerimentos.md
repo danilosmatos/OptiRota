@@ -18,7 +18,7 @@
 
     Project Manager (PM): Danilo
 
-    Desenvolvedores: Antônio (Dijkstra), Danilo (Geral), Eudes (A*)
+    Desenvolvedores: Antônio (Dijkstra), Danilo (Geral), Eudes (A*), Vinicius (CVRPTW)
 
     Engenheiro de QA: Samuel
 

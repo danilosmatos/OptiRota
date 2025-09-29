@@ -13,7 +13,6 @@ def grafo_base(
     # se não achar baixa para poder usar depois
     
     print(f"Procurando grafo para: {place_name}...")
-    print("\n")
     data_dir = "src/data" 
     filename_base = place_name.replace(", ", "_").replace(" ", "_") + ".graphml"
     filepath = os.path.join(data_dir, filename_base)
@@ -24,7 +23,6 @@ def grafo_base(
             G = ox.load_graphml(filepath)
             G = ox.add_edge_speeds(G)
             G = ox.add_edge_travel_times(G)
-            print("Grafo carregado e preparado a partir do arquivo.")
             return G, weight_type
         except Exception as e:
             print(f"Erro ao carregar o arquivo: {e}. Baixando novamente.")
@@ -55,7 +53,6 @@ def grafo_base(
     print(f"Grafo baixado e processado. Salvando em {filepath}...")
     ox.save_graphml(G, filepath=filepath)
     
-    print(f"Grafo carregado e preparado. Peso primário: '{weight_type}'.")
     return G, weight_type
 
 def grafo_mapear(G, coords_origem, coords_destino):

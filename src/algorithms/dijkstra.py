@@ -1,8 +1,5 @@
 import heapq
 
-# Uma coisa que eu to alterando também é o 
-# nome de classes, variaveis e etc para padronizar mais
-
 class Grafo_Dij_Base:
     def __init__(self, G_ox, weight_type='travel_time'):
         self.vizinhos = {}

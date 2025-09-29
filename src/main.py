@@ -1,104 +1,89 @@
-import osmnx as ox
-import networkx as nx
-import matplotlib.pyplot as plt
-import time
+# Importação dp proprio repo
+from algorithms.grafo import grafo_base
+from algorithms.a_star import plotagem_a_star 
+from algorithms.cvrptw import plotagem_cvrptw
 
-from algorithms.grafo import grafo_base, grafo_mapear
-from algorithms.dijkstra import Grafo_Dij_Base, dij_Opi
-from algorithms.a_star import Grafo_A_Star_Base, a_star_opi
+#------------------
+# dados fixossssss
+#------------------
+a_star_alagoas_coordenadas = {
+    'Maragogi (Norte)': (-8.7504, -35.2289), 
+    'Penedo (Sul)': (-10.3015, -36.1416),
+    'Arapiraca (Oeste)': (-9.7344, -36.6577),
+    'Maceió (Capital)': (-9.6653, -35.7337)
+}
 
-local = "Maceió, Alagoas, Brazil"
-# Aqui pode ser 'lenght' para comparar somente distância e 'travel_time' 
-# para comparar tempo
-peso = 'travel_time' 
-# Latitude e longitude é Y, X. Caso contrário vai dar errado que nem tava dando para mim
-# Anotar aqui quais são algumas cordenadas interesantes de se usar
-#SP: -53.28 -29.45 V -49.78 -29.34=
-#MCZ: -35.7205, -9.6709 V -35.7508, -9.5386
-origem = (-9.6709, -35.7205)
-destino = (-9.5386, -35.7508)
+cvrptw_maceio_coordenadas = [
+    (-9.6653, -35.7337), # Depósito (Praça Sete Coqueiros)
+    (-9.6645, -35.7380), # Cliente 1 (Praia de Pajuçara)
+    (-9.6580, -35.7190), # Cliente 2 (Jatiúca)
+    (-9.6450, -35.7050), # Cliente 3 (Maceió Shopping)
+]
 
-# Pega o dicionario resultado (pais) e faz o caminho de volta do destino para o inicio
-# para pegar o caminho mais curto, basicamente funciona só para checar qual foi exatamente
-# o caminho que o algoritmo fez e ver quais os nós que ele percorreu para formar a rota
+cvrptw_maceio_parametros = {
+    'nomes_clientes': ['Depósito', 'Cliente 1', 'Cliente 2', 'Cliente 3'],
+    'demands': [0, 1, 2, 1],
+    'time_windows': [
+        (0, 5000), (100, 300), (400, 600), (700, 900),
+    ],
+    'vehicle_capacities': [4, 4],
+    'num_vehicles': 2,
+    'depot': 0
+}
 
-def reconstruir_caminho(pais, destino, inicio):
-    caminho = []
-    atual = destino
-    while atual is not None and atual != inicio: # continua enquanto ainda tiver nó e n for o de inicio
-        caminho.append(atual)
-        atual = pais.get(atual)
-
-    if atual == inicio:
-        caminho.append(inicio)
-        # inverte pq ele começa do fim e vai pro inicio
-        return caminho[::-1]
-    return None
+def menu(predefinidos, nome_ponto):
+    opcoes = list(predefinidos.keys())
+    op = len(opcoes)
+    print(f"\n--- Selecione o {nome_ponto} ---")
+    for i, nome in enumerate(opcoes):
+        print(f"[{i + 1}] {nome}")
+    
+    while True:
+        
+        try:
+            num = int(input(f"Digite o número para o {nome_ponto}: ")) - 1
+            if 0 <= num < op:
+                num_escolhido = opcoes[num]
+                print(f"-> Selecionado: {num_escolhido}\n")
+                return predefinidos[num_escolhido]
+        
+            else:
+                print("Opção inválida. Tente novamente.")
+        
+        except ValueError:
+            print("Entrada inválida. Digite apenas o número.")
 
 def main():
-    print("\n"+"― "*30+"\n")
-    grafo, weight_type = grafo_base(place_name=local, weight_type=peso)
+    
+    print("=" * 60)
+    print(" "*10 + "ROTAS ALAGOAS (e cvrptw de maceió)")
+    print("=" * 60)
+    
+    grafo_alagoas = "Alagoas, Brazil"
+    peso_do_grafo = 'travel_time' 
+    
+    origem_a_star = menu(a_star_alagoas_coordenadas, "Origem (A*)")
+    destino_a_star = menu(a_star_alagoas_coordenadas, "Destino (A*)")
+    
+    grafo_alagoas, weight_type = grafo_base(place_name=grafo_alagoas, weight_type=peso_do_grafo)
 
-    origem_node, destino_node = grafo_mapear(grafo, origem, destino)
+    plotagem_a_star(
+        grafo_alagoas, 
+        weight_type, 
+        origem_a_star, 
+        destino_a_star, 
+        grafo_alagoas
+    )
     
-    if origem_node is None or destino_node is None:
-        print("Erro: Nós de origem ou destino não encontrados no grafo.")
-        return
+    local_grafo_maceio = "Maceió, Alagoas, Brazil"
     
-    # Descomente se der problema nos nodes ou pesoS
-    #print(f"\nOrigem Node: {origem_node}, Destino Node: {destino_node}")
-    #print(f"Otimizando pelo peso: '{weight_type}'")
-    
-    # DIJKSTRA --------------------------------------------------------------
-    G_dijkstra = Grafo_Dij_Base(grafo, weight_type=weight_type)
-    
-    print("\nExecutando Dijkstra...")
-    tempo_inicio_dijkstra = time.time()
-    distancias_d, pais_d, nos_d = dij_Opi(G_dijkstra, origem_node)
-    tempo_fim_dijkstra = time.time()
-    
-    path_dijkstra = reconstruir_caminho(pais_d, destino_node, origem_node)
-    tempo_total_dijkstra = tempo_fim_dijkstra - tempo_inicio_dijkstra
+    grafo_maceio, awdasd = grafo_base(place_name=local_grafo_maceio, weight_type=peso_do_grafo)
 
-    # A* -------------------------------------------------------------------
-    G_astar = Grafo_A_Star_Base(grafo, weight_type=weight_type)
-
-    print("Executando A*...")
-    tempo_inicio_astar = time.time()
-    distancias_a, pais_a, nos_a = a_star_opi(G_astar, origem_node, destino_node)
-    tempo_fim_astar = time.time()
-    
-    path_a_star = reconstruir_caminho(pais_a, destino_node, origem_node)
-    tempo_total_astar = tempo_fim_astar - tempo_inicio_astar
-    
-    
-    if path_dijkstra and path_a_star:
-        
-        print("\n" + "="*35)
-        print("   COMPARAÇÃO DE COMPLEXIDADE")
-        print("="*35)
-
-        # Comparação de Desempenho
-        print("\n[Métricas]")
-        print("-" * 60)
-        print(f"{'Algoritmo':<10} | {'Tempo (ms)':>15} | {'Nós Explorados':>15}")
-        print("-" * 60)
-        print(f"{'Dijkstra':<10} | {tempo_total_dijkstra*1000:15.3f} | {nos_d:15}")
-        print(f"{'A*':<10} | {tempo_total_astar*1000:15.3f} | {nos_a:15}")
-        print("-" * 60)
-        
-        
-        # Desenha a linha usando o A*; Da no msm pq os dois vão chegar no mesmo resultado
-        print("\nDesenhando a rota desejada...")
-        print("\n"+"― "*30+"\n")
-        fig, ax = ox.plot_graph_route(
-            grafo, path_a_star,route_color='r', route_linewidth=3, route_alpha=1.0, 
-            node_size=0, bgcolor='w', show=True, close=True
-        )
-    else:
-        print("Caminho não encontrado pelo A*. Verifique as coordenadas.")
-        print("\n"+"― "*30+"\n")
-
+    plotagem_cvrptw(
+        grafo_maceio, 
+        cvrptw_maceio_parametros, 
+        cvrptw_maceio_coordenadas
+    )
 
 if __name__ == '__main__':
     main()

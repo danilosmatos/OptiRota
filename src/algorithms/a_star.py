@@ -1,12 +1,17 @@
 import heapq
 import osmnx as ox
 import math
+import matplotlib.pyplot as plt
+
+from .grafo import grafo_mapear, grafo_base 
 # renomeei os dados e datas todos para data para simplificar
 class Grafo_A_Star_Base:
     #Adicionei o peso como atributo tmb para deixar fácil de mudar dps
     def __init__(self, grafo_usado, weight_type='travel_time'):
         self.vizinhos = {}
         self.coordenadas = {} 
+        
+        self.grafo_osmnx = grafo_usado 
         
         for node, data in grafo_usado.nodes(data=True):
             self.coordenadas[node] = (data['y'], data['x'])
@@ -20,7 +25,6 @@ class Grafo_A_Star_Base:
             # A aresta ela é direcional, o que significa que só precisa fazer isso em uma
             # direção, ao invés de fazer do 'u' para o 'n' e 'n' para o 'u'
             self.vizinhos[u].append((n, peso))
-
 
 def calcular_heuristica(grafo, no_atual, no_destino):
 
@@ -99,3 +103,73 @@ def a_star_opi(grafo, inicio, destino):
                 heapq.heappush(fila_prioridade, (novo_f_score, vizinho))
     
     return g_score, pais, contador_nos_a
+
+def reconstruir_caminho(pais, destino, inicio):
+    caminho = []
+    atual = destino
+    while atual is not None and atual != inicio:
+        caminho.append(atual)
+        atual = pais.get(atual)
+
+    if atual == inicio:
+        caminho.append(inicio)
+        return caminho[::-1]
+    return None
+
+def plotagem_a_star(grafo_osmnx, weight_type, origem_coord, destino_coord, local_do_grafo):
+    print("\n" + "― "*30)
+    print(" "*10 + "GRÁFICO DO ALGORÍTMO A*")
+    print("― "*30)
+    print(f"Origem: {origem_coord}")
+    print(f"Destino: {destino_coord}")
+
+    # 1. Mapeamento de Coordenadas para Nós
+    origem_node, destino_node = grafo_mapear(grafo_osmnx, origem_coord, destino_coord)
+
+    if origem_node is None or destino_node is None:
+        print("Erro: Nós de origem ou destino não encontrados no grafo. Tente coordenadas mais próximas de uma via.")
+        return False
+
+    # 2. Setup e Execução do Algoritmo A*
+    G_astar = Grafo_A_Star_Base(grafo_osmnx, weight_type=weight_type)
+
+    _, pais_a, _ = a_star_opi(G_astar, origem_node, destino_node)
+    
+    path_a_star = reconstruir_caminho(pais_a, destino_node, origem_node)
+    
+    print(f"\nCaminho A* encontrado")
+
+    # 3. Plotagem (Lógica movida para cá)
+    if not path_a_star:
+        print("Caminho A* não encontrado.")
+        return False
+            
+    # Chama a função de plotagem do OSMnx
+    try:
+        fig, ax = ox.plot_graph_route(
+            grafo_osmnx, path_a_star, 
+            route_color='r', 
+            route_linewidth=4, 
+            route_alpha=0.8, 
+            node_size=1, 
+            bgcolor='w', 
+            show=False, 
+            close=False
+        )
+        
+        # Destaca os nós de origem e destino
+        origem_coord_g = G_astar.coordenadas.get(origem_node)
+        destino_coord_g = G_astar.coordenadas.get(destino_node)
+        
+        ax.scatter(origem_coord_g[1], origem_coord_g[0], c='green', s=150, label='Origem', zorder=6)
+        ax.scatter(destino_coord_g[1], destino_coord_g[0], c='blue', s=150, label='Destino', zorder=6)
+
+        plt.title(f"Rota A*")
+        plt.legend()
+        plt.show()
+        
+        return True
+
+    except Exception as e:
+        print(f"Erro ao plotar o gráfico: {e}")
+        return False

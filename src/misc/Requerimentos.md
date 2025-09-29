@@ -1,4 +1,6 @@
-A funcionalidade central do sistema de otimização de rotas foi entregue. Estes itens representam as capacidades do produto no nível de usuário e integração:
+# Requerimentos
+
+### A funcionalidade central do sistema de otimização de rotas foi entregue. Estes itens representam as capacidades do produto no nível de usuário e integração:
 
 - [x] Modelagem de Mapa Urbano: O sistema utiliza dados reais do OpenStreetMap (via osmnx) para construir o grafo de ruas, garantindo que a base geográfica seja precisa e atualizada.
 
@@ -10,8 +12,8 @@ A funcionalidade central do sistema de otimização de rotas foi entregue. Estes
 
 - [x] Integração do A* para Matriz de Tempo: Seu algoritmo A* é usado internamente para calcular a matriz de tempo de viagem exata (custo de rota) entre todos os clientes e o depósito. Isso garante que o motor de roteamento VRP utilize dados de custo de rota altamente precisos e realistas.
 
-Time
-    .
+# Time:
+
     Product Owner (PO): Natalie
 
     Project Manager (PM): Danilo

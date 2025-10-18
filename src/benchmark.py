@@ -8,21 +8,9 @@ from algorithms.grafo import grafo_base, grafo_mapear
 from algorithms.dijkstra import Grafo_Dij_Base, dij_Opi 
 from algorithms.a_star import Grafo_A_Star_Base, a_star_opi
 
-def main():
-    
+def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_star):
     # Construção do grafo, é sensível à acentuação e precisa ser capitalizado. OBS: aracaju é em sergipe
     # peso_do_grafo pode ser travel_time e lenght, mas se usar distância provavelmente vai dar erro no cvrptw
-    local_do_grafo = "Alagoas, Brazil"
-    peso_do_grafo = 'travel_time' 
-    
-    #'Maragogi (Norte)': (-8.7504, -35.2289)
-    #'Penedo (Sul)': (-10.3015, -36.1416)
-    #'Arapiraca (Oeste)': (-9.7344, -36.6577)
-    #'Maceió (Capital)': (-9.6653, -35.7337)
-
-    origem_a_star = (-8.7504, -35.2289) 
-    destino_a_star = (-10.3015, -36.1416)
-    
     print("\n" + "― "*32)
     print(" "*20 + "EXECUÇÃO DO A* E DIJKSTRA")
     print("― "*32 + "\n")
@@ -51,6 +39,10 @@ def main():
     distancias_a, pais_a, nos_a = a_star_opi(G_astar, origem_node, destino_node)
     tempo_fim_astar = time.time()
     tempo_total_astar = tempo_fim_astar - tempo_inicio_astar
+
+    #----------------
+    # Execução do Dijkstra
+    #----------------
 
     print("Executando Dijkstra")
     tempo_inicio_dijkstra = time.time()
@@ -81,8 +73,11 @@ def main():
         
         nome_arquivo = f"comparacao_desempenho_{local_do_grafo.replace(', ', '_').lower()}.png"
         
-        DIRETORIO_ATUAL = os.path.dirname(os.path.abspath(__file__)) # Pega o caminho do arquivo atual (src)
+        # Criação dos diretórios para salvar o gráfico (melhor prática)
+        DIRETORIO_ATUAL = os.path.dirname(os.path.abspath(__file__))
         PASTA_GRAFICOS = os.path.join(DIRETORIO_ATUAL, 'graph')
+        if not os.path.exists(PASTA_GRAFICOS):
+             os.makedirs(PASTA_GRAFICOS)
         CAMINHO_COMPLETO = os.path.join(PASTA_GRAFICOS, nome_arquivo)
         
         algoritmos = ['Dijkstra', 'A*']
@@ -118,6 +113,32 @@ def main():
         print("Caminho A* não encontrado. Verifique as coordenadas.")
         print("\n"+"― "*30+"\n")
 
+def main():
+    #'Maragogi (Norte)': (-8.7504, -35.2289)
+    #'Penedo (Sul)': (-10.3015, -36.1416)
+    #'Arapiraca (Oeste)': (-9.7344, -36.6577)
+    #'Maceió': (-9.6653, -35.7337)
+    local_do_grafo = "Alagoas, Brazil"
+    peso_do_grafo = 'travel_time' 
+   
+    origem_a_star = (-8.7504, -35.2289) 
+    destino_a_star = (-10.3015, -36.1416)    
+    
+    while True:
+        try:
+            pass
+            print("Qual Teste Deseja Fazer?")
+            print("[1] Comparação de tempo bruto\n[2] Comparação Big O (Tempo/Tamanho)\n[3] Grafo")
+            escolha = int(input())
+            
+            if escolha == 1:
+                comparacao_bruta(local_do_grafo,peso_do_grafo,origem_a_star,destino_a_star)
+                pass
+            if escolha == 2:
+                pass
+                
+        except ValueError:
+            print("Digite um número adequado.")
 
 if __name__ == '__main__':
     main()

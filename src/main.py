@@ -216,8 +216,9 @@ def main():
                         
             elif escolha == 3:
                 pass
-            elif escolha == 4:
-                print("Obrigado por testar ")
+            else:
+                print("Obrigado por testar!")
+                print("Desenvolvido por Antônio, Danilo, Eudes")
                 break
         except ValueError:
             print("\nDigite um número adequado")

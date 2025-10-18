@@ -161,7 +161,6 @@ def plotagem_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
     print(" "*10 + "SOLVER CVRPTW")
     print("="*40)
     
-    # Desempacotamento dos parametros silvio santos
     nomes_clientes = cvrptw_params['nomes_clientes']
     demands = cvrptw_params['demands']
     time_windows = cvrptw_params['time_windows']
@@ -169,7 +168,7 @@ def plotagem_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
     num_vehicles = cvrptw_params['num_vehicles']
     depot = cvrptw_params['depot']
     
-    print("\nCalculando a matriz de tempos de viagem com A*...")
+    print("\nCalculando a matriz de tempos...")
     time_matrix = matriz_tempo(grafo_rede, coordenadas_cvrptw)
     print("Matriz de tempos gerada:")
     for row in time_matrix:
@@ -200,7 +199,8 @@ def plotagem_cvrptw(grafo_rede, cvrptw_params, coordenadas_cvrptw):
 
     cores_veiculos = plt.cm.get_cmap('hsv', len(solucoes_salvas))
     
-    # Nós mais próximos dos pontos de interesse, inverso do resto do programa por alguma razão satanica
+    # Nós mais próximos dos pontos de interesse, por alguma razão quando eu tentei trocar a ordem 
+    # para seguir o resto (lat/lon) ele buga, n me pergunte o pq
     nodes_map = [ox.nearest_nodes(grafo_rede, X=lon, Y=lat) for lat, lon in coordenadas_cvrptw]
 
     fig, ax = ox.plot_graph(grafo_rede, show=False, close=False, node_size=0, edge_color='gray', bgcolor='w')

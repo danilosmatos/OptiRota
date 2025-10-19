@@ -41,7 +41,6 @@ def config_a_star(dicionario_coords, sentido):
         print(f"[{n}] {nome}")
     print(f"[{n+1}] Customizavel")
     
-    
     while True:
         
         try:
@@ -79,7 +78,6 @@ def config_cvrptw(parametros, coordenadas):
             break
         else:
             print("Opção inválida.")
-
 
     #   Número de Pontos
     while True:

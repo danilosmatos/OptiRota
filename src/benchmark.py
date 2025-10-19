@@ -32,7 +32,7 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
         return
     
     #
-    # Execução A*
+    #   Execução A*
     #
     
     print("\nExecutando A*")
@@ -43,7 +43,7 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
     tempo_total_astar = tempo_fim_astar - tempo_inicio_astar
 
     #
-    # Execução Dijkstra
+    #   Execução Dijkstra
     #
 
     print("Executando Dijkstra")
@@ -54,7 +54,7 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
     tempo_total_dijkstra = tempo_fim_dijkstra - tempo_inicio_dijkstra
     
     #
-    # Manda os dados no terminal
+    #   Manda os dados no terminal
     #
     
     if destino_node in distancias_a:
@@ -70,7 +70,7 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
         print("-" * 60)
         
         #
-        # Gráficos
+        #   Gráficos
         #
         
         nome_arquivo = f"comp_time_{local_do_grafo.replace(', ', '_').lower()}.png"
@@ -139,7 +139,7 @@ def comparacao_big_o(locais_para_teste, peso_do_grafo):
         while origem_node == destino_node:
             destino_node = random.choice(todos_os_nos)
         #
-        # Dijkstra
+        #   Execução Dijkstra
         #
         grafo_dijkstra = Grafo_Dij_Base(grafo, weight_type=weight_type) 
         tempo_inicio_d = time.time()
@@ -148,7 +148,7 @@ def comparacao_big_o(locais_para_teste, peso_do_grafo):
         tempo_dijkstra = tempo_final_d - tempo_inicio_d
         
         #
-        # A*
+        #   Execução A*
         #
         grafo_a_star = Grafo_A_Star_Base(grafo, weight_type=weight_type)
         tempo_inicio_a_star = time.time()
@@ -172,8 +172,8 @@ def comparacao_big_o(locais_para_teste, peso_do_grafo):
     plt.plot(tamanhos_nos_dij, tempos_dij, 'o-', label='Dijkstra', color='darkorange')
     plt.plot(tamanhos_nos_a, tempos_a, 's-', label='A*', color='dodgerblue')
 
-    # Esse bloco faz a curva teórica do BigO n log n do dijkstra, pois tem muita váriaveis tipo
-    # a máquoinma usada e etc. Para manter consistente precisa ser feita toda vez.
+    # Esse bloco faz a curva teórica do BigO n log n do dijkstra, 
+    # é necessario devido as variação inerente que existe a toda maquina e etc
     maior_n = tamanhos_nos_dij[-1]
     maior_tempo_d = tempos_dij[-1]
     C = maior_tempo_d / (maior_n * np.log(maior_n + 1))

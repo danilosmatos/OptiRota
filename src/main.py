@@ -3,9 +3,9 @@ from algorithms.grafo import grafo_base, grafo_teste
 from algorithms.a_star import plotagem_a_star 
 from algorithms.cvrptw import plotagem_cvrptw
 
-#------------------
-# dados predefinidos para caso não queira digitar 20 inputs
-#------------------
+
+#   Dados Predefinidos para caso não queira digitar 20 inputs
+
 a_star_coords_pred = {
     'Maragogi (Norte)': (-8.7504, -35.2289), 
     'Penedo (Sul)': (-10.3015, -36.1416),
@@ -14,10 +14,10 @@ a_star_coords_pred = {
 }
 
 cvrptw_coords_pred = [
-    (-9.6653, -35.7337), # Depósito (Praça Sete Coqueiros)
-    (-9.6645, -35.7380), # Cliente 1 (Praia de Pajuçara)
-    (-9.6580, -35.7190), # Cliente 2 (Jatiúca)
-    (-9.6450, -35.7050), # Cliente 3 (Maceió Shopping)
+    (-9.6653, -35.7337), # D (Praça Sete Coqueiros)
+    (-9.6645, -35.7380), # C1 (Praia de Pajuçara)
+    (-9.6580, -35.7190), # C2 (Jatiúca)
+    (-9.6450, -35.7050), # C3 (Maceió Shopping)
 ]
 
 cvrptw_param_pred = {
@@ -218,7 +218,7 @@ def main():
                 grafo_teste(loc = loc,peso = peso_do_grafo)
             else:
                 print("Obrigado por testar!")
-                print("Desenvolvido por Antônio Gabriel, Danilo Soares, Eudes Oliveira, Vinicius Augusto\n")
+                print("Desenvolvido por Antônio Gabriel, Danilo Soares, Eudes Oliveira, Vinicius Augusto.\n")
                 break
         except ValueError:
             print("\nERRO: Digite um número adequado")

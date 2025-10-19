@@ -177,7 +177,7 @@ def main():
             peso_do_grafo = 'travel_time' 
         
             escolha = int(input(""))
-            print("\n")
+            print("")
             
             if escolha == 1:
                 print("=" * 60)
@@ -218,9 +218,10 @@ def main():
                 grafo_teste(loc = loc,peso = peso_do_grafo)
             else:
                 print("Obrigado por testar!")
-                print("Desenvolvido por Antônio, Danilo, Eudes")
+                print("Desenvolvido por Antônio Gabriel, Danilo Soares, Eudes Oliveira, Vinicius Augusto\n")
                 break
         except ValueError:
             print("\nERRO: Digite um número adequado")
+
 if __name__ == '__main__':
     main()

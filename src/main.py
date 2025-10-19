@@ -1,5 +1,5 @@
 # Importação dp proprio repo
-from algorithms.grafo import grafo_base
+from algorithms.grafo import grafo_base, grafo_teste
 from algorithms.a_star import plotagem_a_star 
 from algorithms.cvrptw import plotagem_cvrptw
 
@@ -172,13 +172,14 @@ def main():
         try:
             print("\n"+"="*20+   " Bem vindo ao protótipo Optirota "+"="*20)
             print("\nEscolha o que deseja fazer:")
-            print("[1] A*\n[2] CVRPTW\n[3] Grafos\n[4] Sair\n")
+            print("[1] A*\n[2] CVRPTW\n[3] Grafos\n[4] Sair")
             
             local_grafo_cvrptw = "Maceió, Alagoas, Brazil"
             local_grafo_a_star = "Alagoas, Brazil"
             peso_do_grafo = 'travel_time' 
         
-            escolha = int(input())
+            escolha = int(input(""))
+            print("\n")
             
             if escolha == 1:
                 print("=" * 60)
@@ -210,17 +211,18 @@ def main():
                         # Na real, o maior causador de erros na minha parte foram coords erradas colocados por mim mesmo
                         # certifique se que você ta usando lat/long e que estão firmamente em maceió, pois o cvrptw laga
                         # bastante quando pede distâncias maiores então melhor prototipar só por aqui mesmo
-                        print(f"\nerro: {e}")
+                        print(f"\nERRO: {e}")
                         print("\nNão foi possível encontrar uma solução válida. ")
                         print("Por favor, tente novamente com novos parâmetros.")
                         
             elif escolha == 3:
-                pass
+                loc = input("\nDigite a cidade/estado que deseja ver o grafo: ")
+                grafo_teste(loc = loc,peso = peso_do_grafo)
             else:
                 print("Obrigado por testar!")
                 print("Desenvolvido por Antônio, Danilo, Eudes")
                 break
         except ValueError:
-            print("\nDigite um número adequado")
+            print("\nERRO: Digite um número adequado")
 if __name__ == '__main__':
     main()

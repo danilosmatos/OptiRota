@@ -61,10 +61,7 @@ def grafo_mapear(G, coords_origem, coords_destino):
     node_destino = ox.nearest_nodes(G, X=coords_destino[1], Y=coords_destino[0])
     return node_origem, node_destino
 
-def main():
-    loc = "Aracaju, Sergipe, Brasil"
-    peso = "travel_time"
-
+def grafo_teste(loc,peso):
     print(f"Tentando obter o grafo para: {loc}")
     grafo, z = grafo_base(place_name=loc, weight_type=peso)
 
@@ -86,7 +83,10 @@ def main():
     else:
         print("FALHA: O local provavelmente foi colocado incorretamente.")
 
-
+def main():
+    loc = "Aracaju, Sergipe, Brasil"
+    peso = "travel_time"
+    grafo_teste(loc,peso)
 
 if __name__ == '__main__':
     main()  

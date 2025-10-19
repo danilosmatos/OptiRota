@@ -6,7 +6,7 @@ import osmnx as ox
 import matplotlib.pyplot as plt
 import time
 # Importações do próprio projeto, todos tem que vir do algorithms
-from algorithms.grafo import grafo_base, grafo_mapear
+from algorithms.grafo import grafo_base, grafo_mapear, grafo_teste
 from algorithms.dijkstra import Grafo_Dij_Base, dij_Opi 
 from algorithms.a_star import Grafo_A_Star_Base, a_star_opi
 
@@ -231,16 +231,17 @@ def main():
                 
             elif escolha == 2:
                 locais_big_o = [
-        ("São Miguel dos Milagres, Alagoas, Brazil", "Municipio"),
-        ("Marechal Deodoro, Alagoas, Brazil", "Cidade Pequena"),
-        ("Arapiraca, Alagoas, Brazil", "Cidade Média"),
-        ("Maceió, Alagoas, Brazil", "Cidade Grande"),
-        ("Alagoas, Brazil", "Enorme (Estado)")] 
+                ("São Miguel dos Milagres, Alagoas, Brazil", "Municipio"),
+                ("Marechal Deodoro, Alagoas, Brazil", "Cidade Pequena"),
+                ("Arapiraca, Alagoas, Brazil", "Cidade Média"),
+                ("Maceió, Alagoas, Brazil", "Cidade Grande"),
+                ("Alagoas, Brazil", "Enorme (Estado)")] 
                 
                 comparacao_big_o(locais_big_o,peso_do_grafo)
             
             elif escolha == 3:
-                pass
+                loc = input("Digite a cidade/estado que deseja ver o grafo: ")
+                grafo_teste(loc = loc,peso = peso_do_grafo)
             
             else:
                 break    

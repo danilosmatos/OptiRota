@@ -1,5 +1,7 @@
 # Importações avulsas
 import os
+import random
+import numpy as np
 import osmnx as ox
 import matplotlib.pyplot as plt
 import time
@@ -29,9 +31,9 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
         print("Erro: Nós de origem ou destino não encontrados no grafo.")
         return
     
-    #----------------
-    # Execução do A*
-    #----------------
+    #
+    # Execução A*
+    #
     
     print("\nExecutando A*")
     G_astar = Grafo_A_Star_Base(grafo, weight_type=weight_type)
@@ -40,9 +42,9 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
     tempo_fim_astar = time.time()
     tempo_total_astar = tempo_fim_astar - tempo_inicio_astar
 
-    #----------------
-    # Execução do Dijkstra
-    #----------------
+    #
+    # Execução Dijkstra
+    #
 
     print("Executando Dijkstra")
     tempo_inicio_dijkstra = time.time()
@@ -51,9 +53,9 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
     tempo_fim_dijkstra = time.time()
     tempo_total_dijkstra = tempo_fim_dijkstra - tempo_inicio_dijkstra
     
-    #------------------
-    # Dados no console
-    #------------------
+    #
+    # Manda os dados no terminal
+    #
     
     if destino_node in distancias_a:
         print("\n" + "="*35)
@@ -67,13 +69,12 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
         print(f"{'A*':<10} | {tempo_total_astar*1000:15.3f} | {nos_a:15}")
         print("-" * 60)
         
-        #----------------------
-        # Criação dos gráficos
-        #----------------------
+        #
+        # Gráficos
+        #
         
-        nome_arquivo = f"comparacao_desempenho_{local_do_grafo.replace(', ', '_').lower()}.png"
+        nome_arquivo = f"comp_time_{local_do_grafo.replace(', ', '_').lower()}.png"
         
-        # Criação dos diretórios para salvar o gráfico (melhor prática)
         DIRETORIO_ATUAL = os.path.dirname(os.path.abspath(__file__))
         PASTA_GRAFICOS = os.path.join(DIRETORIO_ATUAL, 'graph')
         if not os.path.exists(PASTA_GRAFICOS):
@@ -113,29 +114,137 @@ def comparacao_bruta(local_do_grafo, peso_do_grafo, origem_a_star, destino_a_sta
         print("Caminho A* não encontrado. Verifique as coordenadas.")
         print("\n"+"― "*30+"\n")
 
+def comparacao_big_o(locais_para_teste, peso_do_grafo):
+    print("\n" + "― "*30)
+    print(" "*10 + "BIG O: DIJKSTRA E A*")
+    print("― "*30 + "\n")
+    
+    tamanhos_nos_dij = []
+    tempos_dij = []
+    tamanhos_nos_a = []
+    tempos_a = []
+
+    for local, nome_tamanho in locais_para_teste:
+        print(f"Fazendo Grafo: {nome_tamanho} ({local})")
+        
+        grafo, weight_type = grafo_base(place_name=local, weight_type=peso_do_grafo)
+        
+        num_nos = grafo.number_of_nodes()
+        
+        todos_os_nos = list(grafo.nodes)
+        
+        origem_node = random.choice(todos_os_nos)
+        destino_node = random.choice(todos_os_nos)
+        
+        while origem_node == destino_node:
+            destino_node = random.choice(todos_os_nos)
+        #
+        # Dijkstra
+        #
+        grafo_dijkstra = Grafo_Dij_Base(grafo, weight_type=weight_type) 
+        tempo_inicio_d = time.time()
+        x, x, nos_d = dij_Opi(grafo_dijkstra, origem_node) 
+        tempo_final_d = time.time()
+        tempo_dijkstra = tempo_final_d - tempo_inicio_d
+        
+        #
+        # A*
+        #
+        grafo_a_star = Grafo_A_Star_Base(grafo, weight_type=weight_type)
+        tempo_inicio_a_star = time.time()
+        x, x, nos_a_star = a_star_opi(grafo_a_star, origem_node, destino_node) 
+        tempo_final_a_star = time.time()
+        tempo_a_star = tempo_final_a_star - tempo_inicio_a_star
+        
+        tamanhos_nos_dij.append(num_nos)
+        tempos_dij.append(tempo_dijkstra * 1000)
+        tamanhos_nos_a.append(num_nos)
+        tempos_a.append(tempo_a_star * 1000)
+        
+        print(f"\n    Nós: {num_nos:5d}")
+        print(f"    | Tempo D: {tempo_dijkstra*1000:7.2f}ms | Percorreu: {nos_d:5d}")
+        print(f"    | Tempo A*: {tempo_a_star*1000:7.2f}ms | Percorreu: {nos_a_star:5d}")
+        print("\n")
+    
+    plt.figure(figsize=(10, 6))
+    
+    # Esse bloco é da linha do grafico dos algoritmos
+    plt.plot(tamanhos_nos_dij, tempos_dij, 'o-', label='Dijkstra', color='darkorange')
+    plt.plot(tamanhos_nos_a, tempos_a, 's-', label='A*', color='dodgerblue')
+
+    # Esse bloco faz a curva teórica do BigO n log n do dijkstra, pois tem muita váriaveis tipo
+    # a máquoinma usada e etc. Para manter consistente precisa ser feita toda vez.
+    maior_n = tamanhos_nos_dij[-1]
+    maior_tempo_d = tempos_dij[-1]
+    C = maior_tempo_d / (maior_n * np.log(maior_n + 1))
+    n_lin = np.linspace(min(tamanhos_nos_dij), max(tamanhos_nos_dij), 100)
+    teorico_n_log_n = C * n_lin * np.log(n_lin + 1)
+    plt.plot(n_lin, teorico_n_log_n, '--', label=r'n log n', color='red', alpha=0.6)
+    
+    #
+    #   Grafico e salva o arquivo
+    #
+    plt.title('Complexidade Big O')
+    plt.xlabel('Quantidade de Nós)')
+    plt.ylabel('Tempo de Execução ms')
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.6)
+    
+    DIRETORIO_ATUAL = os.path.dirname(os.path.abspath(__file__))
+    PASTA_GRAFICOS = os.path.join(DIRETORIO_ATUAL, 'graph')
+    if not os.path.exists(PASTA_GRAFICOS):
+         os.makedirs(PASTA_GRAFICOS)
+    CAMINHO_COMPLETO = os.path.join(PASTA_GRAFICOS, "comp_bigO_alagoas.png")
+    
+    plt.savefig(CAMINHO_COMPLETO)
+    plt.show()
+    plt.close()
+
 def main():
-    #'Maragogi (Norte)': (-8.7504, -35.2289)
-    #'Penedo (Sul)': (-10.3015, -36.1416)
-    #'Arapiraca (Oeste)': (-9.7344, -36.6577)
-    #'Maceió': (-9.6653, -35.7337)
+    
     local_do_grafo = "Alagoas, Brazil"
     peso_do_grafo = 'travel_time' 
-   
-    origem_a_star = (-8.7504, -35.2289) 
-    destino_a_star = (-10.3015, -36.1416)    
     
     while True:
         try:
             pass
-            print("Qual Teste Deseja Fazer?")
-            print("[1] Comparação de tempo bruto\n[2] Comparação Big O (Tempo/Tamanho)\n[3] Grafo")
+            print("\nQual Teste Deseja Fazer?\n")
+            print("[1] Comparação de tempo bruto\n[2] Comparação Big O (Tempo/Tamanho)\n[3] Grafo\n[4] Sair")
             escolha = int(input())
             
             if escolha == 1:
+                print("Digite a latitude e longitude da origem e do destino")
+                #Maragogi (Norte):  (-8.7504, -35.2289)
+                #Penedo (Sul):      (-10.3015, -36.1416)
+                #Arapiraca (Oeste): (-9.7344, -36.6577)
+                #Maceió:            (-9.6653, -35.7337)
+                
+                x = float(input())
+                y = float(input())
+                xx = float(input())
+                yy = float(input())
+                
+                origem_a_star = (x, y) 
+                destino_a_star = (xx, yy)
+                
                 comparacao_bruta(local_do_grafo,peso_do_grafo,origem_a_star,destino_a_star)
+                
+            elif escolha == 2:
+                locais_big_o = [
+        ("São Miguel dos Milagres, Alagoas, Brazil", "Municipio"),
+        ("Marechal Deodoro, Alagoas, Brazil", "Cidade Pequena"),
+        ("Arapiraca, Alagoas, Brazil", "Cidade Média"),
+        ("Maceió, Alagoas, Brazil", "Cidade Grande"),
+        ("Alagoas, Brazil", "Enorme (Estado)")] 
+                
+                comparacao_big_o(locais_big_o,peso_do_grafo)
+            
+            elif escolha == 3:
                 pass
-            if escolha == 2:
-                pass
+            
+            else:
+                break    
+                
                 
         except ValueError:
             print("Digite um número adequado.")

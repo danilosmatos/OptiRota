@@ -22,7 +22,7 @@ cvrptw_coords_pred = [
 
 cvrptw_param_pred = {
     'nomes_clientes': ['Depósito', 'Cliente 1', 'Cliente 2', 'Cliente 3'],
-    'demands': [0, 1, 2, 1],
+    'demands': [0, 1, 2, 3],
     'time_windows': [
         (0, 5000), (100, 300), (400, 600), (700, 900),
     ],
